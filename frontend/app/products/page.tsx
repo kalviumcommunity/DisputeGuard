@@ -1,30 +1,21 @@
-import ProductCard from '@/components/ProductCard';
+export const revalidate = 60;
 
-const products = [
-  { id: 1, name: 'Laptop', price: 999 },
-  { id: 2, name: 'Phone', price: 699 },
-  { id: 3, name: 'Tablet', price: 399 },
-];
+async function getProducts() {
+  return {
+    generatedAt: new Date().toISOString(),
+    items: ["Notebook", "Keyboard", "Monitor"],
+  };
+}
 
-export default function ProductsPage() {
+export default async function ProductsPage() {
+  const products = await getProducts();
+
   return (
-    <main style={{ padding: '2rem' }}>
-      <h1>Products</h1>
+    <main>
+      <h1>Products - ISR Demo</h1>
+      <p>This page revalidates every 60 seconds.</p>
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: '1rem',
-        }}
-      >
-        {products.map((product) => (
-          <ProductCard
-            key={product.id}
-            product={product}
-          />
-        ))}
-      </div>
+      <pre>{JSON.stringify(products, null, 2)}</pre>
     </main>
   );
 }
