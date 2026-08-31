@@ -1,6 +1,18 @@
 // app/blog/[slug]/page.tsx
 import { notFound } from "next/navigation";
 
+export async function generateStaticParams() {
+  const posts = [
+    { slug: "hello-world" },
+    { slug: "next-js-tips" },
+    { slug: "react-patterns" },
+    { slug: "css-tricks" },
+    { slug: "web-performance" },
+  ];
+
+  return posts;
+}
+
 export default async function BlogPostPage({
   params,
 }: {
@@ -9,19 +21,29 @@ export default async function BlogPostPage({
   const { slug } = await params;
 
   const posts: Record<string, { title: string; content: string }> = {
-    "my-first-post": {
-      title: "My First Post",
-      content: "This is the content of my first post.",
-    },
-
     "hello-world": {
       title: "Hello World",
-      content: "A classic introduction.",
+      content: "First post!",
     },
 
-    "nextjs-routing": {
-      title: "Understanding Next.js Routing",
-      content: "Dynamic routes make building flexible apps easy.",
+    "next-js-tips": {
+      title: "Next.js Tips",
+      content: "Performance tips",
+    },
+
+    "react-patterns": {
+      title: "React Patterns",
+      content: "Design patterns",
+    },
+
+    "css-tricks": {
+      title: "CSS Tricks",
+      content: "CSS tips",
+    },
+
+    "web-performance": {
+      title: "Web Performance",
+      content: "Speed tips",
     },
   };
 
@@ -32,7 +54,13 @@ export default async function BlogPostPage({
   }
 
   return (
-    <article style={{ padding: "2rem" }}>
+    <article
+      style={{
+        padding: "2rem",
+        maxWidth: "800px",
+        margin: "0 auto",
+      }}
+    >
       <h1>{post.title}</h1>
       <p>{post.content}</p>
     </article>
