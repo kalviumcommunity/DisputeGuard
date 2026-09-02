@@ -39,7 +39,7 @@ export default async function UserOrdersPage() {
 
   // Task 1 & Task 2: Parallelize independent preferences fetch alongside dependent orders fetch
   // Note: getOrdersForUser MUST run sequentially after user fetch because user.id is required.
-  let orders = [];
+  let orders: Awaited<ReturnType<typeof getOrdersForUser>> = [];
   let preferences = { theme: 'light', currency: 'USD' };
 
   try {
