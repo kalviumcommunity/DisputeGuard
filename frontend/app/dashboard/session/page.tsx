@@ -1,8 +1,11 @@
 import { getServerSession } from 'next-auth';
+import { redirect } from 'next/navigation';
+import { authOptions } from '@/lib/auth';
 import SessionClient from '../session-client';
 
 export default async function SessionDemoPage() {
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
+  if (!session?.user) redirect('/login');
 
   return (
     <main className="flex min-h-[70vh] items-center justify-center px-4 py-12">
@@ -13,11 +16,11 @@ export default async function SessionDemoPage() {
           </div>
 
           <h1 className="text-2xl font-bold text-slate-900">
-            OAuth Session Demo
+            DisputeGuard Account Session
           </h1>
 
           <p className="mt-2 text-sm text-slate-500">
-            Verifying the authenticated Google session in Server and Client Components.
+            You are signed in to your DisputeGuard account.
           </p>
         </div>
 

@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:https": "next dev --experimental-https",
+    "test:session": "node --test tests/session.test.cjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
