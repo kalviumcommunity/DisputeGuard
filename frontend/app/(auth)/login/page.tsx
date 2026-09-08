@@ -124,6 +124,7 @@ export default function LoginPage() {
               required
               className="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
             />
+            
           </div>
 
           <button
@@ -150,6 +151,18 @@ export default function LoginPage() {
             Create one
           </a>
         </p>
+{/* Test button for Middleware assignment verification */}
+        <button
+          type="button"
+          onClick={() => {
+            document.cookie = 'session-token=authenticated_user_123; path=/';
+            window.location.href = '/dashboard';
+          }}
+          className="mt-4 w-full rounded-lg border border-dashed border-blue-400 bg-blue-50 px-4 py-2 text-xs font-medium text-blue-700 hover:bg-blue-100"
+        >
+          [DEV TEST] Simulate Login (Set Token Cookie)
+        </button>
+
       </div>
     </main>
   );
