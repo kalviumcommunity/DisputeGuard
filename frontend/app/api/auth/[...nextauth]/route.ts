@@ -1,22 +1,22 @@
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import GoogleProvider from 'next-auth/providers/google';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 
 const handler = NextAuth({
   providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
+
     CredentialsProvider({
       name: 'Credentials',
 
       credentials: {
-        email: {
-          label: 'Email',
-          type: 'email',
-        },
-        password: {
-          label: 'Password',
-          type: 'password',
-        },
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' },
       },
 
       async authorize(credentials) {
@@ -33,18 +33,14 @@ const handler = NextAuth({
           where: { email },
         });
 
-        if (!user) {
-          return null;
-        }
+        if (!user) return null;
 
         const passwordMatches = await bcrypt.compare(
           credentials.password,
           user.passwordHash
         );
 
-        if (!passwordMatches) {
-          return null;
-        }
+        if (!passwordMatches) return null;
 
         return {
           id: user.id,

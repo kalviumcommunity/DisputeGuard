@@ -21,7 +21,7 @@ export async function addDisputeAndRevalidateAction(formData: FormData) {
 
   // Task 1: Invalidate target cache via revalidatePath and revalidateTag
   revalidatePath('/disputes-list');
-  revalidateTag('disputes-tag'); // FIX: Removed the second 'max-age' parameter
+  revalidateTag('disputes-tag', 'max'); // FIX: Removed the second 'max-age' parameter
 
   // Task 4: Redirect back to the list page after revalidation
   redirect('/disputes-list');

@@ -12,6 +12,20 @@ export default function LoginPage() {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
+  async function handleGoogleSignIn() {
+    setMessage('');
+    setLoading(true);
+
+    try {
+      await signIn('google', {
+        callbackUrl: '/dashboard/session',
+      });
+    } catch {
+      setMessage('Google sign-in failed. Please try again.');
+      setLoading(false);
+    }
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setMessage('');
@@ -56,6 +70,21 @@ export default function LoginPage() {
           <p className="mt-2 text-sm text-slate-500">
             Sign in to your Dispute Guard account
           </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleGoogleSignIn}
+          disabled={loading}
+          className="mb-5 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {loading ? 'Signing In...' : 'Continue with Google'}
+        </button>
+
+        <div className="mb-5 flex items-center gap-3">
+          <div className="h-px flex-1 bg-slate-200" />
+          <span className="text-xs text-slate-400">OR</span>
+          <div className="h-px flex-1 bg-slate-200" />
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
