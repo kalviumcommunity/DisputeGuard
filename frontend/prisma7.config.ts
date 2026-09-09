@@ -1,5 +1,8 @@
-import "dotenv/config";
+import { loadEnvConfig } from "@next/env";
 import { defineConfig } from "prisma/config";
+
+// Use the same .env.local / .env loading rules as the Next.js application.
+loadEnvConfig(process.cwd());
 
 export default defineConfig({
   schema: "prisma/schema.prisma",
