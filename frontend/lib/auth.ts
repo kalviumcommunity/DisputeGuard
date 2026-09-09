@@ -5,8 +5,11 @@ import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 
 const secret = process.env.NEXTAUTH_SECRET;
+
 if (!secret || secret.length < 32) {
-  throw new Error('Set NEXTAUTH_SECRET to a random value of at least 32 characters.');
+  throw new Error(
+    'Set NEXTAUTH_SECRET to a random value of at least 32 characters.'
+  );
 }
 
 export const authOptions: NextAuthOptions = {
@@ -51,6 +54,7 @@ export const authOptions: NextAuthOptions = {
           id: user.id,
           email: user.email,
           name: user.name,
+          role: user.role === 'admin' ? 'admin' : 'user',
         };
       },
     }),
@@ -66,26 +70,50 @@ export const authOptions: NextAuthOptions = {
   },
 
   secret,
-  jwt: { maxAge: 60 * 60 },
+
+  jwt: {
+    maxAge: 60 * 60,
+  },
+
   cookies: {
     sessionToken: {
       name: '__Secure-next-auth.session-token',
-      options: { httpOnly: true, secure: true, sameSite: 'lax', path: '/' },
+      options: {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'lax',
+        path: '/',
+      },
     },
   },
+
   callbacks: {
     async jwt({ token, user, account }) {
-      // Only authenticated provider output is accepted; client updates are ignored.
+      // Only authenticated provider output is accepted;
+      // client updates are ignored.
       if (user) {
-        return { sub: user.id, name: user.name, email: user.email, provider: account?.provider };
+        return {
+          sub: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role === 'admin' ? 'admin' : 'user',
+          provider: account?.provider,
+        };
       }
+
       return token;
     },
+
     async session({ session, token }) {
-      // Explicit allowlist: never serialize the JWT or provider credentials.
+      // Explicit allowlist: never serialize the JWT
+      // or provider credentials.
       return {
         expires: session.expires,
-        user: { name: token.name ?? null, email: token.email ?? null },
+        user: {
+          name: token.name ?? null,
+          email: token.email ?? null,
+          role: token.role ?? 'user',
+        },
       };
     },
   },
