@@ -5,14 +5,40 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  // Prisma 7 reads DATABASE_URL from datasource.url in ../prisma7.config.ts.
 }
 
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
+  id           String    @id @default(cuid())
+  email        String    @unique
   passwordHash String
   name         String?
-  role         String   @default("user")
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  role         String    @default("user")
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  disputes     Dispute[]
+}
+
+enum DisputeStatus {
+  ACTION_REQUIRED
+  UNDER_REVIEW
+  RESOLVED
+  ESCALATED
+}
+
+model Dispute {
+  id               String        @id @default(cuid())
+  reference        String        @unique
+  title            String
+  // Integer minor units avoid floating-point rounding (for INR, paise).
+  amountMinor      Int
+  currency         String        @default("INR") @db.Char(3)
+  status           DisputeStatus @default(ACTION_REQUIRED)
+  responseDeadline DateTime
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  merchantId       String
+  merchant         User          @relation(fields: [merchantId], references: [id], onDelete: Restrict)
+
+  @@index([merchantId, status, responseDeadline])
 }
