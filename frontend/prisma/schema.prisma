@@ -1,11 +1,24 @@
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../lib/generated/prisma"
 }
 
 datasource db {
-  provider = "postgresql"
-  // Prisma 7 reads DATABASE_URL from datasource.url in ../prisma7.config.ts.
+  provider = "sqlite"
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum DisputeStatus {
+  ACTION_REQUIRED
+  UNDER_REVIEW
+  RESOLVED
+  ESCALATED
 }
 
 model User {
@@ -19,21 +32,14 @@ model User {
   disputes     Dispute[]
 }
 
-enum DisputeStatus {
-  ACTION_REQUIRED
-  UNDER_REVIEW
-  RESOLVED
-  ESCALATED
-}
-
 model Dispute {
   id               String        @id @default(cuid())
   reference        String        @unique
   title            String
-  // Integer minor units avoid floating-point rounding (for INR, paise).
   amountMinor      Int
-  currency         String        @default("INR") @db.Char(3)
+  currency         String        @default("INR")
   status           DisputeStatus @default(ACTION_REQUIRED)
+  priority         Priority      @default(MEDIUM)
   responseDeadline DateTime
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
