@@ -2,7 +2,12 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
- "scripts": {
+  "prisma": {
+    "seed": "node --import tsx prisma/seed.ts"
+  },
+  "scripts": {
+    "db:seed": "prisma db seed",
+    "test:seed": "node --import tsx --test tests/development-seed.test.ts",
     "dev": "next dev",
     "dev:https": "next dev --experimental-https",
     "test:session": "node --test tests/session.test.cjs",
@@ -19,8 +24,10 @@
     "db:deploy": "prisma migrate deploy"
   },
   "dependencies": {
+    "@prisma/adapter-libsql": "7.10.0",
     "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "^7.10.0",
+    "@prisma/client-runtime-utils": "7.10.0",
     "bcryptjs": "^3.0.3",
     "next": "16.3.2",
     "next-auth": "^4.24.15",
