@@ -1,76 +1,43 @@
-import { Suspense } from "react";
-import { PrismaClient } from "@prisma/client";
-import { FilterControls } from "./filter-controls";
+import { Suspense } from 'react';
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { prisma } from '@/lib/prisma';
+import { getDisputePage, paginationHref, PAGE_SIZE, type QueryParams } from '@/lib/dispute-pagination';
+import { FilterControls } from './filter-controls';
 
-const prisma = new PrismaClient();
-
-type PageProps = {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-};
-
-export default async function DisputesPage({ searchParams }: PageProps) {
-  // Task 1: A Server Component reads searchParams via page props
-  const resolvedParams = await searchParams;
-  const statusFilter = typeof resolvedParams.status === "string" ? resolvedParams.status : "ALL";
-  const sortOrder = typeof resolvedParams.sort === "string" && resolvedParams.sort === "asc" ? "asc" : "desc";
-
-  // Task 2: Query database based on searchParams state
-  const whereClause = statusFilter !== "ALL" ? { status: statusFilter as any } : {};
-  const disputes = await prisma.dispute.findMany({
-    where: whereClause,
-    orderBy: { createdAt: sortOrder },
-    take: 10,
-    include: { merchant: { select: { name: true, email: true } } },
-  });
-
+export default async function DisputesPage({ searchParams }: { searchParams: Promise<QueryParams> }) {
+  const params = await searchParams;
+  const { records, query, page, total, totalPages, hasPrevious, hasNext } = await getDisputePage(prisma, params);
+  if (params.page !== String(page)) redirect(paginationHref(query, page));
+  const pageNumbers = [...new Set([1, page - 1, page, page + 1, totalPages])]
+    .filter((value) => value >= 1 && value <= totalPages).sort((a, b) => a - b);
   return (
-    <div style={{ padding: "2rem", fontFamily: "sans-serif" }}>
-      <h1>Dispute Dashboard (URL SearchParams Demo)</h1>
-
-      <Suspense fallback={<div>Loading filters...</div>}>
-        <FilterControls currentStatus={statusFilter} currentSort={sortOrder} />
+    <section className="p-8">
+      <h1 className="mb-6 text-2xl font-bold">DisputeGuard disputes</h1>
+      <Suspense fallback={<p>Loading filters…</p>}>
+        <FilterControls currentStatus={query.status} currentSort={query.sort} />
       </Suspense>
-
-      <div style={{ marginTop: "1rem" }}>
-        <p>
-          Active Filter: <strong>{statusFilter}</strong> | Sort: <strong>{sortOrder}</strong>
-        </p>
-
-        <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "1rem" }}>
-          <thead>
-            <tr style={{ textAlign: "left", borderBottom: "2px solid #ddd", background: "#f4f4f4" }}>
-              <th style={{ padding: "8px" }}>Reference</th>
-              <th style={{ padding: "8px" }}>Title</th>
-              <th style={{ padding: "8px" }}>Amount</th>
-              <th style={{ padding: "8px" }}>Status</th>
-              <th style={{ padding: "8px" }}>Priority</th>
-            </tr>
-          </thead>
-          <tbody>
-            {disputes.length === 0 ? (
-              <tr>
-                <td colSpan={5} style={{ padding: "16px", textAlign: "center" }}>
-                  No disputes found matching status "{statusFilter}".
-                </td>
-              </tr>
-            ) : (
-              disputes.map((dispute) => (
-                <tr key={dispute.id} style={{ borderBottom: "1px solid #eee" }}>
-                  <td style={{ padding: "8px" }}>{dispute.reference}</td>
-                  <td style={{ padding: "8px" }}>{dispute.title}</td>
-                  <td style={{ padding: "8px" }}>₹{(dispute.amountMinor / 100).toFixed(2)}</td>
-                  <td style={{ padding: "8px" }}>
-                    <span style={{ padding: "2px 6px", borderRadius: "4px", background: "#e0e0e0" }}>
-                      {dispute.status}
-                    </span>
-                  </td>
-                  <td style={{ padding: "8px" }}>{dispute.priority}</td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
+      <p className="my-4" role="status">
+        {total === 0 ? 'No matching disputes.' : `Showing ${(page - 1) * PAGE_SIZE + 1}–${Math.min(page * PAGE_SIZE, total)} of ${total} disputes.`}
+        {' '}Page {page} of {totalPages}.
+      </p>
+      <table className="w-full border-collapse text-left">
+        <caption className="sr-only">Disputes on page {page}</caption>
+        <thead><tr>{['Reference', 'Title', 'Amount', 'Status', 'Priority'].map((label) => <th key={label} scope="col" className="border-b p-3">{label}</th>)}</tr></thead>
+        <tbody>{records.map((record) => <tr key={record.id}>
+          <td className="border-b p-3">{record.reference}</td><td className="border-b p-3">{record.title}</td>
+          <td className="border-b p-3">{record.currency} {(record.amountMinor / 100).toFixed(2)}</td>
+          <td className="border-b p-3">{record.status}</td><td className="border-b p-3">{record.priority}</td>
+        </tr>)}</tbody>
+      </table>
+      <nav aria-label="Dispute pagination" className="mt-6 flex items-center gap-4">
+        {hasPrevious ? <Link href={paginationHref(query, page - 1)}>Previous</Link> : <span aria-disabled="true" className="text-gray-500">Previous</span>}
+        {pageNumbers.map((number, index) => <span key={number}>
+          {index > 0 && number - pageNumbers[index - 1] > 1 && <span className="mr-4">…</span>}
+          <Link href={paginationHref(query, number)} aria-label={`Page ${number}`} aria-current={number === page ? 'page' : undefined} className={number === page ? 'font-bold underline' : ''}>{number}</Link>
+        </span>)}
+        {hasNext ? <Link href={paginationHref(query, page + 1)}>Next</Link> : <span aria-disabled="true" className="text-gray-500">Next</span>}
+      </nav>
+    </section>
   );
 }

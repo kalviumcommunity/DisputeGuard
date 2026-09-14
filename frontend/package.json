@@ -6,6 +6,8 @@
     "seed": "node --import tsx prisma/seed.ts"
   },
   "scripts": {
+    "test:pagination": "node --import tsx --test tests/dispute-pagination.test.ts",
+    "demo:pagination": "node --import tsx scripts/prepare-pagination-demo.ts",
     "db:seed": "prisma db seed",
     "test:seed": "node --import tsx --test tests/development-seed.test.ts",
     "dev": "next dev",
