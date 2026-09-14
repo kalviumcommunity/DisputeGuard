@@ -15,6 +15,7 @@ export function FilterControls({
 
   function updateParam(key: string, value: string) {
     const params = new URLSearchParams(searchParams.toString());
+    params.set('page', '1');
     if (value && value !== "ALL") {
       params.set(key, value);
     } else {
@@ -38,8 +39,8 @@ export function FilterControls({
           <option value="ALL">All Statuses</option>
           <option value="ACTION_REQUIRED">Action Required</option>
           <option value="UNDER_REVIEW">Under Review</option>
-          <option value="WON">Won</option>
-          <option value="LOST">Lost</option>
+          <option value="RESOLVED">Resolved</option>
+          <option value="ESCALATED">Escalated</option>
         </select>
       </div>
 
