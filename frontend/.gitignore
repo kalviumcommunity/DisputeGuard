@@ -49,3 +49,6 @@ next-env.d.ts
 # Prisma generated client
 /lib/generated/prisma
 /.seed-verification/
+
+# Local file uploads
+uploads/
