@@ -15,9 +15,18 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// Task 1: Root Layout Metadata configuration
 export const metadata: Metadata = {
-  title: "Dispute Guard",
-  description: "Dispute Guard",
+  metadataBase: new URL("https://disputeguard.com"),
+  title: {
+    default: "Dispute Guard",
+    template: "%s | Dispute Guard",
+  },
+  description: "Enterprise chargeback, dispute resolution, and payment defense platform.",
+  openGraph: {
+    siteName: "Dispute Guard",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
