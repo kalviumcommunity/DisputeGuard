@@ -14,7 +14,7 @@ export function FilterControls({
   const searchParams = useSearchParams();
 
   function updateParam(key: string, value: string) {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParams?.toString() ?? '');
     params.set('page', '1');
     if (value && value !== "ALL") {
       params.set(key, value);
