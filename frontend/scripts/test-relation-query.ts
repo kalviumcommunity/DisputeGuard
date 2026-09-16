@@ -1,14 +1,15 @@
 import fs from "fs";
 import path from "path";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "../lib/generated/prisma";
+import { PrismaLibSql } from "@prisma/adapter-libsql";
 
 const prisma = new PrismaClient({
+  adapter: new PrismaLibSql({ url: process.env.DATABASE_URL! }),
   log: [{ emit: "event", level: "query" }],
 });
 
 async function main() {
   const logs: string[] = [];
-  // @ts-ignore
   prisma.$on("query", (e: { query: string; duration: number }) => {
     logs.push(`SQL: ${e.query} [Duration: ${e.duration}ms]`);
   });

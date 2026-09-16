@@ -151,17 +151,6 @@ export default function LoginPage() {
             Create one
           </a>
         </p>
-{/* Test button for Middleware assignment verification */}
-        <button
-          type="button"
-          onClick={() => {
-            document.cookie = 'session-token=authenticated_user_123; path=/';
-            window.location.href = '/dashboard';
-          }}
-          className="mt-4 w-full rounded-lg border border-dashed border-blue-400 bg-blue-50 px-4 py-2 text-xs font-medium text-blue-700 hover:bg-blue-100"
-        >
-          [DEV TEST] Simulate Login (Set Token Cookie)
-        </button>
 
       </div>
     </main>
