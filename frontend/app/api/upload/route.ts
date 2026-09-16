@@ -1,6 +1,7 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { NextResponse } from 'next/server';
+
+import { errorResponse, successResponse } from '@/lib/api-response';
 
 const allowedTypes = [
   'image/png',
@@ -11,49 +12,63 @@ const allowedTypes = [
 const maxSize = 2 * 1024 * 1024;
 
 export async function POST(request: Request) {
+  let formData: FormData;
+
   try {
-    const formData = await request.formData();
-    const file = formData.get('file');
+    formData = await request.formData();
+  } catch {
+    return errorResponse(
+      'VALIDATION_ERROR',
+      'A multipart form-data request is required.',
+      400,
+      {
+        field: 'file',
+        issue: 'invalid_form_data',
+      },
+    );
+  }
 
-    if (!(file instanceof File)) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: 'NO_FILE',
-            message: 'File is required.',
-          },
-        },
-        { status: 400 },
-      );
-    }
+  const file = formData.get('file');
 
-    if (!allowedTypes.includes(file.type)) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: 'INVALID_TYPE',
-            message: 'Only PNG, JPEG, and PDF files are supported.',
-          },
-        },
-        { status: 400 },
-      );
-    }
+  if (!(file instanceof File)) {
+    return errorResponse(
+      'VALIDATION_ERROR',
+      'File is required.',
+      400,
+      {
+        field: 'file',
+        issue: 'required',
+      },
+    );
+  }
 
-    if (file.size > maxSize) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: 'FILE_TOO_LARGE',
-            message: 'Maximum file size is 2 MB.',
-          },
-        },
-        { status: 400 },
-      );
-    }
+  if (!allowedTypes.includes(file.type)) {
+    return errorResponse(
+      'VALIDATION_ERROR',
+      'Only PNG, JPEG, and PDF files are supported.',
+      400,
+      {
+        field: 'file',
+        issue: 'unsupported_type',
+        allowedTypes,
+      },
+    );
+  }
 
+  if (file.size > maxSize) {
+    return errorResponse(
+      'VALIDATION_ERROR',
+      'Maximum file size is 2 MB.',
+      400,
+      {
+        field: 'file',
+        issue: 'file_too_large',
+        maxSizeBytes: maxSize,
+      },
+    );
+  }
+
+  try {
     const extensionByType: Record<string, string> = {
       'image/png': '.png',
       'image/jpeg': '.jpg',
@@ -71,8 +86,7 @@ export async function POST(request: Request) {
     const bytes = await file.arrayBuffer();
     await writeFile(filePath, Buffer.from(bytes));
 
-    return NextResponse.json({
-      success: true,
+    return successResponse({
       file: {
         name: filename,
         type: file.type,
@@ -80,16 +94,13 @@ export async function POST(request: Request) {
         url: `/api/upload/${filename}`,
       },
     });
-  } catch {
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          code: 'UPLOAD_FAILED',
-          message: 'The file could not be uploaded.',
-        },
-      },
-      { status: 500 },
+  } catch (error) {
+    console.error('File upload failed:', error);
+
+    return errorResponse(
+      'INTERNAL_SERVER_ERROR',
+      'The file could not be uploaded.',
+      500,
     );
   }
 }

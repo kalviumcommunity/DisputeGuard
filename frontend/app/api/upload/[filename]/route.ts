@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { NextResponse } from 'next/server';
+
+import { errorResponse } from '@/lib/api-response';
 
 const allowedExtensions: Record<string, string> = {
   '.png': 'image/png',
@@ -19,9 +20,14 @@ export async function GET(
     !allowedExtensions[extension] ||
     path.basename(filename) !== filename
   ) {
-    return NextResponse.json(
-      { error: 'Invalid filename.' },
-      { status: 400 },
+    return errorResponse(
+      'VALIDATION_ERROR',
+      'Invalid filename.',
+      400,
+      {
+        field: 'filename',
+        issue: 'invalid_filename',
+      },
     );
   }
 
@@ -29,16 +35,19 @@ export async function GET(
     const filePath = path.join(process.cwd(), 'uploads', filename);
     const file = await readFile(filePath);
 
-    return new NextResponse(file, {
+    return new Response(file, {
       headers: {
         'Content-Type': allowedExtensions[extension],
         'Content-Disposition': `inline; filename="${filename}"`,
       },
     });
-  } catch {
-    return NextResponse.json(
-      { error: 'File not found.' },
-      { status: 404 },
+  } catch (error) {
+    console.error('File retrieval failed:', error);
+
+    return errorResponse(
+      'NOT_FOUND',
+      'File not found.',
+      404,
     );
   }
 }

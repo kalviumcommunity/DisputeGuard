@@ -47,7 +47,7 @@ export default function UploadForm() {
         );
       }
 
-      setUploadedFile(result.file);
+      setUploadedFile(result.data.file);
     } catch (uploadError) {
       setError(
         uploadError instanceof Error
