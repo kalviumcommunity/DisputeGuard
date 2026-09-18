@@ -1,4 +1,4 @@
-# ChargebackGuard
+# DisputeGuard
 
 A merchant dispute management portal designed to help sellers manage chargeback disputes, submit evidence, track response deadlines, receive reminders, and handle escalations.
 
@@ -8,7 +8,7 @@ Razorpay wants a merchant dispute portal where sellers upload evidence against c
 
 ## Project Objective
 
-ChargebackGuard aims to provide merchants with a centralized portal for managing disputes and responding to chargebacks within the required time period.
+DisputeGuard aims to provide merchants with a centralized portal for managing disputes and responding to chargebacks within the required time period.
 
 ## Core Features
 
