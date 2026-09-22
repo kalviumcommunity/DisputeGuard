@@ -3,6 +3,7 @@ import { redirect, notFound } from 'next/navigation';
 import { getSession, canAccessDispute } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { daysLeft, STATUS_LABELS } from '@/lib/disputes';
+import AdminReviewActions from '@/components/AdminReviewActions';
 
 export default async function DisputeDetailPage({ params }: { params: { id: string } }) {
   const user = await getSession();
@@ -47,6 +48,10 @@ export default async function DisputeDetailPage({ params }: { params: { id: stri
         <Link href={`/evidence?disputeId=${dispute.id}`} className="btn btn-primary" style={{ marginBottom: 20 }}>
           Submit evidence for this dispute
         </Link>
+      )}
+
+      {user.role === 'ADMIN' && (dispute.status === 'EVIDENCE_SUBMITTED' || dispute.status === 'UNDER_REVIEW') && (
+        <AdminReviewActions disputeId={dispute.id} />
       )}
 
       <h3 style={{ fontSize: 15, fontWeight: 800, color: 'var(--heading)', margin: '10px 0 12px 0' }}>Submitted evidence</h3>
