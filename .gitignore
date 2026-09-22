@@ -1,1 +1,10 @@
-.pnpm-store/
+node_modules/
+.next/
+out/
+build/
+.env
+.env*.local
+uploads/
+*.log
+.DS_Store
+next-env.d.ts

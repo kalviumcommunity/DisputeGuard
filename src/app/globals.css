@@ -1,0 +1,72 @@
+:root {
+  --navy: #0a2540;
+  --blue: #3e7bfa;
+  --blue-light: #8fbbfa;
+  --blue-pale: rgba(143, 187, 250, 0.14);
+  --card: #122a4a;
+  --card-2: #0f2440;
+  --heading: #f0f5fc;
+  --ink: #dce6f5;
+  --muted: #8fa1be;
+  --green: #3fcb86;
+  --amber: #f0b24e;
+  --red: #ff6b6b;
+  --border: rgba(255, 255, 255, 0.09);
+  --shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 20px 46px rgba(0, 0, 0, 0.5);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+
+body {
+  font-family: 'Manrope', system-ui, -apple-system, sans-serif;
+  color: var(--ink);
+  min-height: 100vh;
+  background:
+    radial-gradient(1200px 680px at 100% -10%, rgba(62, 123, 250, 0.28) 0%, transparent 60%),
+    radial-gradient(900px 560px at -10% 100%, rgba(15, 58, 158, 0.3) 0%, transparent 55%),
+    linear-gradient(180deg, #0a1a30 0%, #0b2038 100%);
+  background-attachment: fixed;
+}
+
+a { color: inherit; text-decoration: none; }
+
+.btn {
+  border: none; border-radius: 10px; padding: 10px 16px; font-weight: 700; font-size: 13.5px;
+  cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+  transition: background .15s ease, transform .1s ease;
+}
+.btn:active { transform: scale(.97); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn-primary { background: var(--blue); color: #fff; }
+.btn-primary:hover:not(:disabled) { background: #5c93ff; }
+.btn-ghost { background: var(--blue-pale); color: var(--heading); }
+.btn-ghost:hover { background: rgba(143, 187, 250, 0.26); }
+.btn-danger { background: var(--red); color: #fff; }
+
+.card {
+  background: linear-gradient(180deg, var(--card) 0%, var(--card-2) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+}
+
+.status-pill {
+  display: inline-block; font-size: 11px; font-weight: 700; padding: 4px 9px;
+  border-radius: 20px; letter-spacing: .01em;
+}
+.status-ACTION_REQUIRED { background: #fdecec; color: var(--red); }
+.status-EVIDENCE_SUBMITTED, .status-UNDER_REVIEW { background: #fff4e0; color: #b4790c; }
+.status-RESOLVED { background: #e7f8ee; color: var(--green); }
+.status-ESCALATED { background: #fdecec; color: var(--red); }
+
+.form-input {
+  width: 100%; padding: 11px 13px; border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04);
+  color: var(--heading); font-size: 14px;
+}
+.form-input:focus { outline: none; border-color: var(--blue-light); }
+.form-label { font-size: 12.5px; color: var(--muted); margin-bottom: 6px; display: block; font-weight: 600; }
+
+.error-text { color: var(--red); font-size: 13px; }

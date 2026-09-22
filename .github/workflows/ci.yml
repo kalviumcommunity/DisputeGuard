@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        env:
+          # Dummy values so `next build` can run without a real DB/secret —
+          # the build only needs these to exist, not to be valid.
+          DATABASE_URL: "postgresql://user:pass@localhost:5432/db"
+          JWT_SECRET: "ci-build-only-secret"
+          CRON_SECRET: "ci-build-only-secret"
+        run: npm run build
