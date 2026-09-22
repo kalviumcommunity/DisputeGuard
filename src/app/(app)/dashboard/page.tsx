@@ -98,7 +98,7 @@ export default async function DashboardPage() {
       <h3 style={{ fontSize: 15, fontWeight: 800, color: 'var(--heading)', margin: '34px 0 14px 0' }}>Needs your attention</h3>
       {urgent.length === 0 ? (
         <div className="card" style={{ padding: '16px 18px', color: 'var(--muted)', fontSize: 13 }}>
-          Nothing needs your response right now — you're all caught up.
+          Nothing needs your response right now — you&apos;re all caught up.
         </div>
       ) : (
         <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
@@ -132,7 +132,7 @@ export default async function DashboardPage() {
       <h3 style={{ fontSize: 15, fontWeight: 800, color: 'var(--heading)', margin: '34px 0 14px 0' }}>Recent activity</h3>
       {recentActivity.length === 0 ? (
         <div className="card" style={{ padding: '16px 18px', color: 'var(--muted)', fontSize: 13 }}>
-          Nothing's happened yet — activity will show up here as disputes move.
+          Nothing&apos;s happened yet — activity will show up here as disputes move.
         </div>
       ) : (
         <div className="card" style={{ padding: '6px 18px' }}>
