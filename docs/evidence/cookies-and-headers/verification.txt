@@ -1,7 +1,0 @@
-PASS: Initial HTML: light default, saved dark/light, and invalid theme fallback; no JavaScript executed.
-PASS: POST sets persistent one-year theme cookie (Path=/, SameSite=Lax, HttpOnly, Secure); next request renders saved theme.
-PASS: Malformed and invalid theme bodies return 400 without changing cookies.
-PASS: Dashboard renders actual user-agent/language, case-insensitive header lookup, and enabled feature UI.
-PASS: Absent, empty, unknown, malformed and oversized flags use fallback; missing browser headers render Not provided.
-PASS: Existing NextAuth route renews a valid session using HttpOnly, Secure, SameSite=Lax, Path=/; token is not in response JSON.
-PASS: Successful build marks dashboard dynamic (ƒ) and independent rendering-control static (○); control responds 200.

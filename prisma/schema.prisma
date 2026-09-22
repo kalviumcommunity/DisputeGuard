@@ -1,0 +1,122 @@
+// Dispute Guard — Prisma schema
+// Maps directly to the PRD: FR-01..FR-13, NFR-09/NFR-10 (immutable evidence).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  MERCHANT
+  ADMIN
+}
+
+enum DisputeStatus {
+  ACTION_REQUIRED
+  EVIDENCE_SUBMITTED
+  UNDER_REVIEW
+  RESOLVED
+  ESCALATED
+}
+
+enum AuditAction {
+  DISPUTE_CREATED
+  EVIDENCE_UPLOADED
+  EVIDENCE_SUBMITTED
+  REMINDER_SENT
+  ESCALATED
+  ADMIN_REVIEWED_EVIDENCE
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  name         String
+  role         Role      @default(MERCHANT)
+  createdAt    DateTime  @default(now())
+
+  disputes     Dispute[] @relation("MerchantDisputes")
+  auditLogs    AuditLog[]
+}
+
+model Dispute {
+  id             String        @id @default(cuid())
+  transactionId  String
+  amount         Decimal       @db.Decimal(10, 2)
+  reason         String
+  paymentMethod  String
+  status         DisputeStatus @default(ACTION_REQUIRED)
+
+  merchantId     String
+  merchant       User          @relation("MerchantDisputes", fields: [merchantId], references: [id])
+
+  createdAt      DateTime      @default(now())
+  // FR-07: 7-day response deadline, computed at creation time.
+  deadlineAt     DateTime
+  // FR-08: tracks the last day a reminder was sent, so the daily
+  // reminder job never double-sends on the same day.
+  lastReminderAt DateTime?
+  escalatedAt    DateTime?
+  resolvedAt     DateTime?
+
+  evidence       Evidence[]
+  auditLogs      AuditLog[]
+  reminders      Reminder[]
+
+  @@index([status])
+  @@index([merchantId])
+}
+
+// FR-06 / NFR-09 / NFR-10: once created, an Evidence row is never
+// updated or deleted by any API route — see src/app/api/disputes/[id]/evidence/route.ts,
+// which only implements GET and POST.
+model Evidence {
+  id           String   @id @default(cuid())
+  disputeId    String
+  dispute      Dispute  @relation(fields: [disputeId], references: [id])
+
+  fileName     String
+  fileUrl      String
+  fileSize     Int
+  mimeType     String
+  sha256Hash   String
+
+  submittedBy  String   // merchant user id, kept as plain string (not a relation)
+                         // so this row's content never changes even if the user is later modified
+  submittedAt  DateTime @default(now())
+
+  @@index([disputeId])
+}
+
+// FR-12: audit trail, independent of the Evidence record itself.
+model AuditLog {
+  id        String      @id @default(cuid())
+  disputeId String
+  dispute   Dispute     @relation(fields: [disputeId], references: [id])
+
+  action    AuditAction
+  actorId   String?
+  actor     User?       @relation(fields: [actorId], references: [id])
+  metadata  Json?
+
+  createdAt DateTime    @default(now())
+
+  @@index([disputeId])
+}
+
+// FR-08: one row per reminder actually sent, so the escalation job
+// is idempotent and auditable.
+model Reminder {
+  id        String   @id @default(cuid())
+  disputeId String
+  dispute   Dispute  @relation(fields: [disputeId], references: [id])
+  sentAt    DateTime @default(now())
+  channel   String   @default("in_app")
+
+  @@index([disputeId])
+}
